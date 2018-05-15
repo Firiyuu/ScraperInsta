@@ -33,6 +33,8 @@ from feedhandler import writeToCsv, analyzeCsvFeed
 
 
 def getfollowers(browser):
+        today = date.today()
+        today.strftime('%m%d%y')
         running = True
         while running:
            try:
@@ -54,23 +56,24 @@ def getfollowers(browser):
                    file_name ='followers' + str(today) + '.csv'
 
                    for follower, user in zip(followers, followers_username):
-                   	   fields = (str(follower.get_attribute("innerText")) + ',' + str(user.get_attribute("innerText")))
-                       writeToCsv(fields, file_name)
+                        fields = (str(follower.get_attribute("innerText")) + ',' + str(user.get_attribute("innerText")))
+                        writeToCsv(fields, file_name)
              
 
 
 
            except NoSuchElementException as e:
-               new = ALL_PROXIES.pop()
-               pd = proxy_driver(ALL_PROXIES)
-               print("--- Switched proxy to: %s" % new)
-               time.sleep(1)
+           	      print(e)
+                  # new = ALL_PROXIES.pop()
+                  # pd = proxy_driver(ALL_PROXIES)
+                  # print("--- Switched proxy to: %s" % new)
+                  # time.sleep(1)
 
            except TimeoutException:
-               print("Loading took too much time!")
+                  print("Loading took too much time!")
 
            except Exception as e:
-               print(e)
+                  print(e)
 
            # except:
            #     new = ALL_PROXIES.pop()
@@ -79,6 +82,9 @@ def getfollowers(browser):
            #     time.sleep(1)  
 
 def scraper(browser):
+        today = date.today()
+        today.strftime('%m%d%y')
+
         running = True
         while running:
            try:
@@ -100,17 +106,18 @@ def scraper(browser):
                    file_name ='followers' + str(today) + '.csv'
 
                    for follower, user in zip(followers, followers_username):
-                   	   fields = (str(follower.get_attribute("innerText")) + ',' + str(user.get_attribute("innerText")))
+                       fields = (str(follower.get_attribute("innerText")) + ',' + str(user.get_attribute("innerText")))
                        writeToCsv(fields, file_name)
               analyzeCsvFeed()
 
 
 
            except NoSuchElementException as e:
-               new = ALL_PROXIES.pop()
-               pd = proxy_driver(ALL_PROXIES)
-               print("--- Switched proxy to: %s" % new)
-               time.sleep(1)
+               print(e)
+               # new = ALL_PROXIES.pop()
+               # pd = proxy_driver(ALL_PROXIES)
+               # print("--- Switched proxy to: %s" % new)
+               # time.sleep(1)
 
            except TimeoutException:
                print("Loading took too much time!")
@@ -127,50 +134,101 @@ def scraper(browser):
 
 #UNFINISHED--------------------------------------------------------------------------------------------------------
 
-# def gethashpower(browser):
-#         running = True
-#         while running:
-#            try:
+def getPower(tags, browser):
+    for tag in tags:
+       browser.get('https://www.instagram.com/explore/tags/'+ str(tag) +'/')
+       try:
+         
+          url = 'https://www.instagram.com/heromotorsports/'
+          browser.get(url)
+
+          # delay = 3 seconds you can edit delay here just in case your internet speed is down.
+          # time.sleep(delay)
+          
+          #GETTING FOLLOWERS
+
+          if browser.find_element_by_xpath("//span[@class='_fd86t ']"):
+
+               power = browser.find_element_by_xpath("//span[@class='_fd86t ']").get_attribute('innerText')
+
+               print(power)
+
+               file_name ='tags' + str(today) + '.csv'
+               writeToCsv(power,file_name)
+          else:
+               print('Not Found!')
+
+
+                   
+        
+
+
+
+       except NoSuchElementException as e:
+           print(e)
+           # new = ALL_PROXIES.pop()
+           # pd = proxy_driver(ALL_PROXIES)
+           # print("--- Switched proxy to: %s" % new)
+           # time.sleep(1)
+
+       except TimeoutException:
+           print("Loading took too much time!")
+
+       except Exception as e:
+           print(e)
+ 
+
+
+
+
+def gethashpower(browser):
+        today = date.today()
+        today.strftime('%m%d%y')
+        running = True
+        while running:
+           try:
              
-#               url = 'https://www.instagram.com/heromotorsports/'
-#               browser.get(url)
+              url = 'https://www.instagram.com/heromotorsports/'
+              browser.get(url)
 
-#               # delay = 3 seconds you can edit delay here just in case your internet speed is down.
-#               # time.sleep(delay)
+              # delay = 3 seconds you can edit delay here just in case your internet speed is down.
+              # time.sleep(delay)
               
-#               #GETTING FOLLOWERS
+              #GETTING FOLLOWERS
 
-#               if browser.find_elements_by_xpath("//div[@class='_2di5p']"):
+              if browser.find_elements_by_xpath("//div[@class='_2di5p']"):
 
-#                    tag_elements = browser.find_elements_by_xpath("//div[@id='_2di5p']")
+                   tag_elements = browser.find_elements_by_xpath("//div[@id='_2di5p']")
 
-#                    print(tag_elements)
+                   print(tag_elements)
 
-#                    file_name ='tags' + str(today) + '.csv'
+                  
 
-#                    for tag in tag_elements:
-#                    	   s = tag.get_attribute('alt')
-#                    	   tags = re.compile(r"#(\w+)")
-#                    	   tags = tag.findall(s)
-#                    	   fields = ''
-
-
-#                        writeToCsv(follower + ',' + user, file_name)
-#               analyzeCsvFeed()
+                   for tag in tag_elements:
+                       s = tag.get_attribute('alt')
+                       tags = re.compile(r"#(\w+)")
+                       tags = tag.findall(s)
+                       getPower(tags, browser)
 
 
 
-#            except NoSuchElementException as e:
-#                new = ALL_PROXIES.pop()
-#                pd = proxy_driver(ALL_PROXIES)
-#                print("--- Switched proxy to: %s" % new)
-#                time.sleep(1)
+                       
+            
 
-#            except TimeoutException:
-#                print("Loading took too much time!")
 
-#            except Exception as e:
-#                print(e)
+
+           except NoSuchElementException as e:
+               print(e)
+               # new = ALL_PROXIES.pop()
+               # pd = proxy_driver(ALL_PROXIES)
+               # print("--- Switched proxy to: %s" % new)
+               # time.sleep(1)
+
+           except TimeoutException:
+               print("Loading took too much time!")
+
+           except Exception as e:
+               print(e)
 
            # except:
            #     new = ALL_PROXIES.pop()
@@ -225,7 +283,7 @@ def scraper(browser):
 
 #RUN
 
-browser = webdriver.Firefox(executable_path="C:\Python36\ASIN\ASINENV\selenium\webdriver\geckodriver.exe")
+browser = webdriver.Firefox(executable_path="\selenium\webdriver\geckodriver.exe") #CONFIGURE PATH TO DRIVER
 print("Firefox Browser Invoked")
 
 #LOG-IN SESSION
@@ -255,6 +313,6 @@ while True:
     elif(choice == '2'):
         scraper(browser)
     elif(choice == '3'):
-    	gethashpower(browser)
+        gethashpower(browser)
     else:
         print("Invalid Key!")
