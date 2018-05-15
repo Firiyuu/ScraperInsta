@@ -1,13 +1,13 @@
 # ScraperInsta
 
-##SETUP:
+## SETUP:
 
 ### Install Python Virtual Environment
 ### pip install -r requirements.txt
 
 
-## RUN;
+## RUN:
 
-###python instascraper.py
+### python instascraper.py
 
 
