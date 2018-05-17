@@ -91,18 +91,16 @@ def writeToCsv(fields,file_name):
 
     today = date.today()
     today.strftime('%m%d%y')
+
     
 
     
     print(file_name)
-
-    with open(file_name) as csvfile:
-        readCSV = csv.reader(csvfile, delimiter=',')
-        with open(file_name, 'a', newline='') as f:
+    with open(file_name, 'a', newline='') as f:
            writer = csv.writer(f, delimiter=' ', quotechar = ' ')
            writer.writerow(fields)
            print('Written Follower to CSV!')
-        f.close()
+    f.close()
 
 
 

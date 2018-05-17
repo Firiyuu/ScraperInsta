@@ -5,12 +5,11 @@ from io import StringIO
 import json
 import os
 from pandas.io.common import EmptyDataError
-import datetime
+from datetime import date, timedelta
 import sched, time
 import csv
 
 
-from csvhandler import writeToCsv, writeToCsv1
 
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
@@ -25,87 +24,133 @@ import re
 import schedule
 from os import listdir
 from os.path import isfile, join
-from feedhandler import writeToCsv, analyzeCsvFeed
+from feedhandler import writeToCsv, analyzeCsvFeed, GetUnfollowersNames
 
 
 
-# def monitor():
+
 
 
 def getfollowers(browser):
-        today = date.today()
-        today.strftime('%m%d%y')
-        running = True
-        while running:
-           try:
-             
-              url = 'https://www.instagram.com/heromotorsports/followers/'
-              browser.get(url)
 
-              # delay = 3 seconds you can edit delay here just in case your internet speed is down.
-              # time.sleep(delay)
-              
-              #GETTING FOLLOWERS
+          print('FLAG1')
+          today = date.today()
+          today.strftime('%m%d%y')
+          url = 'https://www.instagram.com/heromotorsports/'
+          browser.get(url)
+          time.sleep(5)
 
-              if browser.find_elements_by_xpath("//div[@class='_9mmn5']"):
-
-                   followers = browser.find_elements_by_xpath("//div[@id='_9mmn5']")
-                   followers_username = browser.find_elements_by_xpath("//div[@class='_2nunc']/a")
-                   print(followers)
-
-                   file_name ='followers' + str(today) + '.csv'
-
-                   for follower, user in zip(followers, followers_username):
-                        fields = (str(follower.get_attribute("innerText")) + ',' + str(user.get_attribute("innerText")))
-                        writeToCsv(fields, file_name)
+          
+          browser.find_element_by_xpath("//a[@href='/heromotorsports/followers/']").click()
+          time.sleep(5)
              
 
 
+          # delay = 3 seconds you can edit delay here just in case your internet speed is down.
+          # time.sleep(delay)
+          
+          #GETTING FOLLOWERS
+          print('FLAG2')
+          # follower_list = []
+          # follower_user_list = []
+          # number_of_followers = int((browser.find_element_by_xpath("(//span[@class='_fd86t '])[2]").text).replace(",",""))
+          # followers_panel = browser.find_element_by_xpath("//div[@class='_o0j5z']/div")
+          # print(number_of_followers)
 
-           except NoSuchElementException as e:
-           	      print(e)
-                  # new = ALL_PROXIES.pop()
-                  # pd = proxy_driver(ALL_PROXIES)
-                  # print("--- Switched proxy to: %s" % new)
-                  # time.sleep(1)
 
-           except TimeoutException:
-                  print("Loading took too much time!")
 
-           except Exception as e:
-                  print(e)
+          dialog = browser.find_element_by_xpath("//div[@class='_o0j5z']/div")
+          #find number of followers
+          allfoll= int((browser.find_element_by_xpath("(//span[@class='_fd86t '])[2]").text).replace(",",""))
+          #scroll down the page
+          follow_list_1 = []
+          follow_list_2 = []
 
-           # except:
-           #     new = ALL_PROXIES.pop()
-           #     pd = proxy_driver(ALL_PROXIES)
-           #     print("--- Switched proxy to: %s" % new)
-           #     time.sleep(1)  
+
+          #scroll down the page
+          for i in range(int(allfoll/2)):
+              browser.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight", dialog)
+              followers_elems = browser.find_elements_by_xpath("(//div[@class='_eryrc']/div)")
+              print(followers_elems)
+              follow_list_1.append(followers_elems)
+              follower_username = browser.find_elements_by_xpath("(//div[@class='_2nunc'])")
+              print(follower_username)
+              follow_list_2.append(followers_elems)
+
+           
+              print("Extract friends %",round((i/(allfoll/2)*100),2),"from","%100")
+
+          # followers_elems = browser.find_elements_by_xpath("(//div[@class='_eryrc']/div)")
+
+          # follower_username = browser.find_elements_by_xpath("//div[@class='_2nunc']")
+
+          follower = [e[0].text for e in follow_list_1]
+          username = [e[0].text for e in follow_list_2]
+
+          for f,i in zip(follower,username):
+              fields = (str(f) + ',' + str(i))
+              print('FLAG4')
+              file_name ='followers' + str(today) + '.csv'
+
+              writeToCsv(fields, file_name)
+
+
+          # print('FLAG3')
+
+          # followers = browser.find_elements_by_xpath("//div[@class='_eryrc']/div")
+          # followers_username = browser.find_elements_by_xpath("//div[@class='_2nunc']/a")
+          # print(followers)
+          # print(followers_username)
+
+          # file_name ='followers' + str(today) + '.csv'
+
+          # print('FLAG3')
+          # print(file_name)
+
+
+
+          # for follower in followers:
+          #     follower_list.append(str(follower.text))
+
+          # for user in followers_username:
+          #     follower_user_list.append(str(user.get_attribute("title")))
+
+
+
+               
+
+
+
 
 def scraper(browser):
-        today = date.today()
-        today.strftime('%m%d%y')
+           today = date.today()
+           today.strftime('%m%d%y')
 
-        running = True
-        while running:
+
            try:
              
-              url = 'https://www.instagram.com/heromotorsports/followers/'
+              url = 'https://www.instagram.com/heromotorsports/'
               browser.get(url)
+              time.sleep(5)
+
+              
+              browser.find_element_by_xpath("//a[@href='/heromotorsports/followers/']").click()
+              time.sleep(5)
 
               # delay = 3 seconds you can edit delay here just in case your internet speed is down.
               # time.sleep(delay)
               
               #GETTING FOLLOWERS
 
-              if browser.find_elements_by_xpath("//div[@class='_9mmn5']"):
+          
 
-                   followers = browser.find_elements_by_xpath("//div[@id='_9mmn5']")
-                   followers_username = browser.find_elements_by_xpath("//div[@class='_2nunc']/a")
-                   print(followers)
+              followers = browser.find_elements_by_xpath("//div[@id='_9mmn5']")
+              followers_username = browser.find_elements_by_xpath("//div[@class='_2g7d5 notranslate _o5iw8 ']/a")
+              print(followers)
 
-                   file_name ='followers' + str(today) + '.csv'
+              file_name ='followers' + str(today) + '.csv'
 
-                   for follower, user in zip(followers, followers_username):
+              for follower, user in zip(followers, followers_username):
                        fields = (str(follower.get_attribute("innerText")) + ',' + str(user.get_attribute("innerText")))
                        writeToCsv(fields, file_name)
               analyzeCsvFeed()
@@ -114,10 +159,7 @@ def scraper(browser):
 
            except NoSuchElementException as e:
                print(e)
-               # new = ALL_PROXIES.pop()
-               # pd = proxy_driver(ALL_PROXIES)
-               # print("--- Switched proxy to: %s" % new)
-               # time.sleep(1)
+
 
            except TimeoutException:
                print("Loading took too much time!")
@@ -125,16 +167,12 @@ def scraper(browser):
            except Exception as e:
                print(e)
 
-           # except:
-           #     new = ALL_PROXIES.pop()
-           #     pd = proxy_driver(ALL_PROXIES)
-           #     print("--- Switched proxy to: %s" % new)
-           #     time.sleep(1)                        
+                   
 
 
 #UNFINISHED--------------------------------------------------------------------------------------------------------
 
-def getPower(tags, browser):
+def getPower(tags,browser):
     for tag in tags:
        browser.get('https://www.instagram.com/explore/tags/'+ str(tag) +'/')
        try:
@@ -182,33 +220,32 @@ def getPower(tags, browser):
 
 
 def gethashpower(browser):
-        today = date.today()
-        today.strftime('%m%d%y')
-        running = True
-        while running:
-           try:
+           today = date.today()
+           today.strftime('%m%d%y')
+
+           
              
-              url = 'https://www.instagram.com/heromotorsports/'
-              browser.get(url)
+           url = 'https://www.instagram.com/heromotorsports/'
+           browser.get(url)
 
-              # delay = 3 seconds you can edit delay here just in case your internet speed is down.
-              # time.sleep(delay)
+           # delay = 3 seconds you can edit delay here just in case your internet speed is down.
+           # time.sleep(delay)
+          
+           #GETTING FOLLOWERS
+ 
+           if browser.find_elements_by_xpath("//div[@class='_2di5p']"):
+
+               tag_elements = browser.find_elements_by_xpath("//div[@id='_2di5p']")
+
+               print(tag_elements)
+
               
-              #GETTING FOLLOWERS
 
-              if browser.find_elements_by_xpath("//div[@class='_2di5p']"):
-
-                   tag_elements = browser.find_elements_by_xpath("//div[@id='_2di5p']")
-
-                   print(tag_elements)
-
-                  
-
-                   for tag in tag_elements:
-                       s = tag.get_attribute('alt')
-                       tags = re.compile(r"#(\w+)")
-                       tags = tag.findall(s)
-                       getPower(tags, browser)
+               for tag in tag_elements:
+                   s = tag.get_attribute('alt')
+                   tags = re.compile(r"#(\w+)")
+                   tags = tag.findall(s)
+                   getPower(tags, browser)
 
 
 
@@ -217,24 +254,7 @@ def gethashpower(browser):
 
 
 
-           except NoSuchElementException as e:
-               print(e)
-               # new = ALL_PROXIES.pop()
-               # pd = proxy_driver(ALL_PROXIES)
-               # print("--- Switched proxy to: %s" % new)
-               # time.sleep(1)
 
-           except TimeoutException:
-               print("Loading took too much time!")
-
-           except Exception as e:
-               print(e)
-
-           # except:
-           #     new = ALL_PROXIES.pop()
-           #     pd = proxy_driver(ALL_PROXIES)
-           #     print("--- Switched proxy to: %s" % new)
-           #     time.sleep(1) 
 
 
 
@@ -267,7 +287,7 @@ def gethashpower(browser):
 #         print("--- Proxies used up (%s)" % len(PROXIES))
 #         PROXIES = get_proxies()
 
-#     prox.proxy_type = ProxyType.MANUAL
+#     prox.proxy_type = ProxyType.MANUALwaht second optionwahtwwwfs
 #     prox.http_proxy = pxy
 #     prox.socks_proxy = pxy
 #     prox.ssl_proxy = pxy
@@ -281,38 +301,42 @@ def gethashpower(browser):
 
 
 
-#RUN
 
-browser = webdriver.Firefox(executable_path="\selenium\webdriver\geckodriver.exe") #CONFIGURE PATH TO DRIVER
+browser = webdriver.Firefox(executable_path="C:\Python36\ASIN\ASINENV\selenium\webdriver\geckodriver.exe") #CONFIGURE PATH TO DRIVER
 print("Firefox Browser Invoked")
 
 #LOG-IN SESSION
 print("I will start scraping!")
 login_url = 'https://www.instagram.com/'
 browser.get(login_url)
+time.sleep(10)
+
+browser.find_element_by_xpath("//a[@href='/accounts/login/']").click()
+time.sleep(10)
+
 username = browser.find_element_by_name("username")
 password = browser.find_element_by_name("password")
 
 #INSERT CREDENTIALS HERE
-username.send_keys('') 
-password.send_keys('') 
+username.send_keys('jedharhart@gmail.com') 
+password.send_keys('Firiyuu77')
 #INSERT CREDENTIALS HERE----
 
 
-login_attempt = browser.find_element_by_name("_qv64e")
+login_attempt = browser.find_element_by_xpath("//button[@class='_qv64e       _gexxb _4tgw8     _njrw0   ']")
 login_attempt.click()
 print("Wait 10 Secs for a successful login")
 time.sleep(10)
 print("Login Succesful")
 
 
-while True:
-    choice = input("What do you want to do?\n\n1 - Get Instagram Follower Count\n2 - Track Instagram Followers\n3 - Get Hashtags Power")
-    if(choice == '1'):
-        getfollowers(browser)
-    elif(choice == '2'):
-        scraper(browser)
-    elif(choice == '3'):
-        gethashpower(browser)
-    else:
-        print("Invalid Key!")
+
+choice = input("What do you want to do?\n\n1 - Get Instagram Follower Count\n2 - Track Instagram Followers\n3 - Get Hashtags Power")
+if(choice == '1'):
+    getfollowers(browser)
+elif(choice == '2'):
+    scraper(browser)
+elif(choice == '3'):
+    gethashpower(browser)
+else:
+    print("Invalid Key!")
